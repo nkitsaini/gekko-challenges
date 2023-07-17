@@ -65,6 +65,9 @@ struct Mapper {
     mapping: [[char; 14]; 26],
 }
 
+unsafe impl Sync for Mapper {}
+unsafe impl Send for Mapper {}
+
 impl Mapper {
     fn new() -> Self {
         let mut value: [[char; 14]; 26] = Default::default();
@@ -96,16 +99,31 @@ fn process_word(word: &str, mapper: &'static Mapper) -> impl Iterator<Item = Str
     })
 }
 
-fn main() {
+fn show_valid_decryptions(word: &str) {
     let mapper: &'static Mapper = Box::leak(Box::new(Mapper::new()));
     // dbg!(mapper.mapping);
     let valid_words = get_words();
-    for word in process_word("xxiygpwny", mapper) {
+    for word in process_word(word, mapper) {
         // for word in process_word("nuluvpet", mapper) {
         if valid_words.contains(&word) {
             dbg!(word);
         }
     }
+}
+
+fn show_valid_decryptions(word: &str) {
+    let mapper: &'static Mapper = Box::leak(Box::new(Mapper::new()));
+    // dbg!(mapper.mapping);
+    let valid_words = get_words();
+    for word in process_word(word, mapper) {
+        // for word in process_word("nuluvpet", mapper) {
+        if valid_words.contains(&word) {
+            dbg!(word);
+        }
+    }
+}
+
+fn show_word_lengths() {
     let res = MESSAGE
         .split(' ')
         .map(|x| (x, x.len()))
@@ -113,16 +131,35 @@ fn main() {
         .collect_vec();
 
     dbg!(res);
-    // dbg!('3'.shift(1));
-    // dbg!('a'.shift(1));
-    // dbg!(get_possible_jumps());
+}
 
-    // // let english_words = get_words();
-    // dbg!(english_words.len());
-    // // dbg!(get_possible_jumps());
-    // dbg!(get_variants('n'));
-    // process_word("nmldrycgz");
-    // dbg!(get_variants('n'));
+// fn find_config(point_a: char, point_b: char) -> char {}
+
+fn show_connections_used(word_orig: &str, word_enc: &str) {
+    println!("======== Comparing: {word_orig} => {word_enc}");
+    for (char_orig, char_enc) in word_orig.chars().zip(word_enc.chars()) {
+        println!(
+            "{char_orig} -> {char_enc}: {}",
+            calc_shift(char_orig, char_enc)
+        );
+
+        let shift_count = calc_shift(char_orig, char_enc);
+        for (char1, char2) in JOINS {
+            if calc_shift(char1, char2) == shift_count {
+                println!("Possible connection: {char1} -> {char2}");
+            } else if calc_shift(char2, char1) == shift_count {
+                println!("Possible connection: {char2} -> {char1}");
+            }
+        }
+    }
+}
+
+fn main() {
+    show_valid_decryptions("uycvqgncvx");
+
+    // show_word_lengths();
+    // show_connections_used("escapable", "xxiygpwny");
+    // show_connections_used("effective", "nmldrycgz");
 }
 
 /*
