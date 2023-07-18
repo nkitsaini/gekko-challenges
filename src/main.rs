@@ -87,8 +87,10 @@ impl Mapper {
 #[inline]
 fn to_loc(val: char) -> u8 {
     debug_assert!(val.is_lowercase());
-    return val as u8 - 'a' as u8;
+    // 'a' as u8 => 97
+    return val as u8 - 97;
 }
+
 fn from_loc(val: u8) -> char {
     debug_assert!(val < 26);
     return (val + 'a' as u8) as char;
@@ -205,7 +207,8 @@ fn process_word_threaded(word: &str, start: usize, count: usize) -> impl Iterato
                     .get_unchecked(to_loc(*word.get_unchecked(i)) as usize)
                     .get_unchecked(val as usize)
             })
-            .join(" ")
+            .collect()
+        // .join(" ")
     })
 }
 

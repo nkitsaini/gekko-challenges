@@ -14,10 +14,11 @@ impl<I> FixedMultiProductIterator<I>
 where
     I: Sized + Clone,
 {
+    #[inline]
     fn build(&self) -> Vec<I> {
         let mut rv = Vec::with_capacity(self.idxs.len());
         for idx in self.idxs.iter() {
-            rv.push(self.values[*idx].clone());
+            rv.push(unsafe { self.values.get_unchecked(*idx) }.clone());
         }
         rv
     }
@@ -79,6 +80,8 @@ where
     fn size_hint(&self) -> (usize, Option<usize>) {
         return (self.count, Some(self.count));
     }
+
+    #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         if self.count == 0 {
             return None;
