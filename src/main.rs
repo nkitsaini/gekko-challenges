@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use std::thread;
 use std::{char, collections::HashSet};
 
@@ -6,6 +6,7 @@ use iter_product::FixedMultiProductIter;
 // use pbr::ProgressBar;
 // use
 use itertools::{Itertools, Permutations};
+use parking_lot::Mutex;
 use serde;
 use zzz::ProgressBar;
 use zzz::ProgressBarIterExt as _;
@@ -230,15 +231,18 @@ fn show_valid_decryptions_threaded(word: &str, thread_count: usize) {
         let found = found.clone();
         let bar = progress_bar.clone();
         thread_handles.push(thread::spawn(move || {
-            let valid_words = get_words();
+            let valid_words: HashSet<String> = get_words()
+                .into_iter()
+                .filter(|x| x.len() == w.len())
+                .collect();
             for (i, word) in process_word_threaded(&w, start, gap).enumerate() {
                 if i % 100000 == 0 {
-                    bar.lock().unwrap().add_sync(100000);
+                    bar.lock().add_sync(100000);
                 }
                 // for word in process_word("nuluvpet", mapper) {
-                if valid_words.contains(&word) && !found.lock().unwrap().contains(&word) {
-                    found.lock().unwrap().insert(word.clone());
-                    dbg!(found.lock().unwrap().len(), word);
+                if valid_words.contains(&word) && !found.lock().contains(&word) {
+                    found.lock().insert(word.clone());
+                    dbg!(found.lock().len(), word);
                 }
             }
         }));
@@ -304,7 +308,8 @@ fn show_connections_used(word_orig: &str, word_enc: &str) {
 fn main() {
     // show_valid_decryptions("uycvqgncvx");
     // show_valid_decryptions("nmldrycgz");
-    show_valid_decryptions_threaded("nmldrycgz", 8);
+    // show_valid_decryptions_threaded("nmldrycgz", 8);
+    show_valid_decryptions_threaded("abcdefgh", 8);
     // show_valid_decryptions("xxiygpwny");
     // show_valid_decryptions("xxiygpwny");
     // show_valid_decryptions("nhanrdsh");
