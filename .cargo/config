@@ -1,0 +1,3 @@
+[build]
+rustflags = ["-C", "llvm-args=-unroll-threshold=1000"]
+

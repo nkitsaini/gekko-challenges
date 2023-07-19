@@ -8,6 +8,7 @@ edition = "2021"
 [lib]
 name = "decrypt"
 
+
 [[bench]]
 name = "iter"
 harness = false
@@ -17,6 +18,7 @@ derive_more = "0.99.17"
 itertools = "0.11.0"
 parking_lot = "0.12.1"
 pbr = "1.1.1"
+radix_trie = "0.2.1"
 serde = { version = "1.0.171", features = ["derive"] }
 serde_json = "1.0.102"
 zzz = "0.3.1"

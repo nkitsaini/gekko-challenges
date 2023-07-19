@@ -3,6 +3,7 @@ use std::thread;
 use std::{char, collections::HashSet};
 
 use iter_product::FixedMultiProductIter;
+use radix_trie::Trie;
 // use pbr::ProgressBar;
 // use
 use itertools::{Itertools, Permutations};
@@ -235,11 +236,14 @@ fn show_valid_decryptions_threaded(word: &str, thread_count: usize) {
                 .into_iter()
                 .filter(|x| x.len() == w.len())
                 .collect();
+            // let valid_words = Trie::from_iter(get_words().into_iter().map(|x| (x, ())));
+
             for (i, word) in process_word_threaded(&w, start, gap).enumerate() {
                 if i % 100000 == 0 {
                     bar.lock().add_sync(100000);
                 }
                 // for word in process_word("nuluvpet", mapper) {
+                // if valid_words.get(&word).is_some() && !found.lock().contains(&word) {
                 if valid_words.contains(&word) && !found.lock().contains(&word) {
                     found.lock().insert(word.clone());
                     dbg!(found.lock().len(), word);
@@ -308,16 +312,17 @@ fn show_connections_used(word_orig: &str, word_enc: &str) {
 fn main() {
     // show_valid_decryptions("uycvqgncvx");
     // show_valid_decryptions("nmldrycgz");
-    // show_valid_decryptions_threaded("nmldrycgz", 8);
-    show_valid_decryptions_threaded("abcdefgh", 8);
+    // show_valid_decryptions("nmldrycgz");
+    // show_valid_decryptions_threaded("nmldrycgz", 12);
+    show_valid_decryptions_threaded("abcdefgh", 12);
     // show_valid_decryptions("xxiygpwny");
     // show_valid_decryptions("xxiygpwny");
     // show_valid_decryptions("nhanrdsh");
     // show_valid_decryptions("ljbxjyp");
-    // show_valid_decryptions_threaded("uycvqgncvx", 1);
+    // show_valid_decryptions_threaded("uycvqgncvx", 12);
 
     // show_word_lengths();
-    // show_connections_used("escapable", "xxiygpwny");
+    // show_connections_used("uycvqgncvx", "determined");
     // show_connections_used("effective", "nmldrycgz");
 }
 
