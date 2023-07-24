@@ -256,26 +256,6 @@ fn show_valid_decryptions_threaded(word: &str, thread_count: usize) {
     for thread in thread_handles {
         thread.join().unwrap();
     }
-
-    // let gap = total_size / thread_count;
-    // for i in 0..thread_count {
-    //     let start = i * gap;
-    //     let end = if i == thread_count - 1 {
-    //         total_size
-    //     } else {
-    //         i * (gap + 1)
-    //     };
-
-    //     let iter = process_word(word).advance_by(start);
-    // }
-
-    // let valid_words = get_words();
-    // for word in process_word(word).progress() {
-    //     // for word in process_word("nuluvpet", mapper) {
-    //     if valid_words.contains(&word) {
-    //         dbg!(word);
-    //     }
-    // }
 }
 
 fn show_word_lengths() {
@@ -301,44 +281,63 @@ fn show_connections_used(word_orig: &str, word_enc: &str) {
         let shift_count = calc_shift(char_orig, char_enc);
         for (char1, char2) in JOINS {
             if calc_shift(char1, char2) == shift_count {
-                println!("Possible connection: {char1} -> {char2}");
+                println!("Possible connection: {char1} -> {char2} [{}]", 'a'.shift(calc_shift(char1, char_orig)));
             } else if calc_shift(char2, char1) == shift_count {
-                println!("Possible connection: {char2} -> {char1}");
+                println!(
+                    "Possible connection(R): {char2} -> {char1} [{}]",
+                    'a'.shift(calc_shift(char2, char_enc))
+                );
+                // println!("Possible connection(r): {char2} -> {char1}");
             }
         }
     }
 }
 
+fn is_connected(orig: &str, enc: &str) -> bool {
+    for (char1, char2) in orig.chars().zip(enc.chars()) {
+        if !JUMPS.contains(&calc_shift(char1, char2)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+fn show_valid_decryptions_fast(encrypted_word: &str) -> Vec<String> {
+    let valid_words: HashSet<String> = get_words()
+        .into_iter()
+        .filter(|x| x.len() == encrypted_word.len())
+        .collect();
+    valid_words
+        .into_iter()
+        .filter(|x| is_connected(x, encrypted_word))
+        .collect()
+}
+
 fn main() {
     // show_valid_decryptions("uycvqgncvx");
-    // show_valid_decryptions("nmldrycgz");
-    // show_valid_decryptions("nmldrycgz");
-    // show_valid_decryptions_threaded("nmldrycgz", 12);
-    show_valid_decryptions_threaded("abcdefgh", 12);
-    // show_valid_decryptions("xxiygpwny");
+    for word1 in show_valid_decryptions_fast("xxiygpwny") {
+        for word2 in show_valid_decryptions_fast("nmldrycgz") {
+            println!("{word1} {word2}");
+        }
+    }
+
+    // show_valid_decryptions_fast("nmldrycgz");
+    // // show_valid_decryptions("nmldrycgz");
+    // // show_valid_decryptions_threaded("nmldrycgz", 12);
+    // // show_valid_decryptions_threaded("abcdefgh", 12);
+    // println!("=======================================");
+    // show_valid_decryptions_fast("xxiygpwny");
     // show_valid_decryptions("xxiygpwny");
     // show_valid_decryptions("nhanrdsh");
+    // show_valid_decryptions_fast("nhanrdsh");
     // show_valid_decryptions("ljbxjyp");
-    // show_valid_decryptions_threaded("uycvqgncvx", 12);
+    // show_valid_decryptions_fast("kwvzgiupclv");
+    // show_valid_decryptions_fast("xxiygpwny");
+    // show_valid_decryptions_threaded("kwvzgiupclv", 12);
 
     // show_word_lengths();
+    // show_connections_used("kwvzgiupclv", "protagonist");
+    // show_connections_used("uycvqgncvx", "themselves");
     // show_connections_used("uycvqgncvx", "determined");
     // show_connections_used("effective", "nmldrycgz");
 }
-
-/*
-
-
-== nmldrycgz
-   elaoptene
-   effective
-   theopathy
-   oleoptene
-   insularly
-
-
-== xxiygpwny
-   escapable
-
-
-*/
